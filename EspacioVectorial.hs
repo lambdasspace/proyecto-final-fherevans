@@ -9,17 +9,25 @@ module EspacioVectorial where
         multiplica :: (Num e) => e -> (a e) -> (a e)
 
 -- tipo para las n-adas
-    data Vector a = Vector [a] deriving Show
+    data Vector a = Vector [a]
+
+-- Instanciamos show
+    instance (Show a) => Show (Vector a) where
+        show (Vector ls) = "(" ++ (showaux ls) ++ ")"
+    
+    showaux :: (Show a) => [a] -> String
+    showaux [x] = show x
+    showaux (x:xs) = (show x) ++ ", " ++ showaux xs
 
 -- definimos Vector como instancia de la clase EV
     instance EV Vector where
         suma (Vector x) (Vector y) = if verifica x y then Vector (zipWith (+) x y) else error "Solo se pueden sumar vectores del mismo espacio vectorial"
         multiplica k x = fmap (*k) x
 
+-- Instanciamos functor para usar fmap
     instance Functor Vector where
         fmap f (Vector x) = Vector (map f x)
     
-
 -- Función auxiliar que verifica si dos vectores pertenecen al mismo EV
     verifica :: [a] -> [a] -> Bool
     verifica a b = (length a) == (length b) 
@@ -36,9 +44,15 @@ module EspacioVectorial where
     ceroVector :: (Integral a) => a -> Vector a
     ceroVector n = fmap (*0) (Vector [1..n])
 
--- *** -- *** -- ***
+-- *** -- *** -- *** -- *** -- *** -- *** -- *** -- *** -- ***
+
 -- Tipo de dato matríz, puede definir una materíz por fila o una matríz por columna
-    data Matriz a = Matriz [Vector a] deriving Show
+    data Matriz a = Matriz [Vector a]
+
+--Instanciamos Show
+    instance (Show a) => Show (Matriz a) where 
+        show (Matriz []) = ""
+        show (Matriz (x:xs)) = "|" ++ (show x) ++ "|\n" ++ show (Matriz xs)
 
 -- Instanciamos a matriz como un espacio vectorial
     instance EV Matriz where
@@ -61,7 +75,8 @@ module EspacioVectorial where
     ceroaux 0 m = []
     ceroaux n m = (fmap (*0) (Vector [1..m])):ceroaux (n-1) m
 
--- *** -- *** -- ***
+-- *** -- *** -- *** -- *** -- *** -- *** -- *** -- *** -- ***
+
 -- Tipo de dato polinomio que hereda de EV
 -- La posición de cada elemento de la lista corresponde al grado de la literal que acompaña coeficiente
 -- Por ejemplo el polinomio "3 + 2x^2 + x^3" equivale a: "Polinomio [3,0,2,1]"
@@ -88,3 +103,9 @@ module EspacioVectorial where
     ceroPol :: (Integral a) => a -> Polinomio a
     ceroPol n = Polinomio (map (*0) [1..n])
    
+-- Funciones para convertir polinomios a vectores y visceversa, esto con el fin de poder utilizarlos en matrices
+    vecToPol :: Vector a -> Polinomio a
+    vecToPol (Vector a) = (Polinomio a)
+    
+    polToVec :: Polinomio a -> Vector a
+    polToVec (Polinomio a) = (Vector a)
