@@ -3,6 +3,7 @@ module EspacioVectorial where
 
 -- Creamos una clase de tipos para todos los elementos que puedan ser parte de un espacio vectorial
 -- Todo espacio vectorial debe implementar la operación de suma de vectores y multiplicación por escalares.
+-- Un EV tiene un elemento cero, hará falta especificar la dimensión del EV para obtener dicho vector 
     class EV a where
         suma :: (Num e) => (a e) -> (a e) -> (a e)
         multiplica :: (Num e) => e -> (a e) -> (a e)
@@ -31,6 +32,11 @@ module EspacioVectorial where
     getVector:: Vector a -> [a]
     getVector (Vector x) = x
 
+-- Función que nos otorga el cero de un EV de dimensión N
+    ceroVector :: (Integral a) => a -> Vector a
+    ceroVector n = fmap (*0) (Vector [1..n])
+
+-- *** -- *** -- ***
 -- Tipo de dato matríz, puede definir una materíz por fila o una matríz por columna
     data Matriz a = Matriz [Vector a] deriving Show
 
@@ -47,13 +53,38 @@ module EspacioVectorial where
                                                                and $ map (\(a,b) -> (length $ getVector a)==(length $ getVector b)) p
                                                     else False
 
+-- Retorna matríz de ceros de n renglones y m columnas                                                                                                 
+    ceroMatriz :: (Integral a) => a -> a -> Matriz a
+    ceroMatriz n m = Matriz (ceroaux n m)
+
+    ceroaux :: (Integral a) => a -> a -> [Vector a]
+    ceroaux 0 m = []
+    ceroaux n m = (fmap (*0) (Vector [1..m])):ceroaux (n-1) m
+
+-- *** -- *** -- ***
 -- Tipo de dato polinomio que hereda de EV
-    data Polinomio a = Polinomio Char [a] deriving Show
-        suma (Polinomio x p1) (Polinomio x p2) = Polinomio x (map (\(a,b) -> a+b) (zip p1 p2))
-        multiplica p1 p2 = Polinomio
+-- La posición de cada elemento de la lista corresponde al grado de la literal que acompaña coeficiente
+-- Por ejemplo el polinomio "3 + 2x^2 + x^3" equivale a: "Polinomio [3,0,2,1]"
+    data Polinomio a = Polinomio [a] deriving Show
 
+-- Instanciamos a nuestro polinomio como miembre de espacio vectorial
+    instance EV Polinomio where
+        suma ps qs = Polinomio (auxSuma (getPol ps) (getPol qs))
+        multiplica c (Polinomio p1) = Polinomio (map (*c) p1)
 
-    verificaP :: [a] -> [a] -> Bool
-    verificaP l1 l2 = (length l1) < 6 && (length l2) < 6
+-- Retorna la lista que corresponde a los valores del polinomio
+    getPol:: Polinomio a -> [a]
+    getPol (Polinomio x) = x
 
+{-- Auxiliar para poder realizar la suma, recordemos que el grado de la suma de dos polinomios
+    es igual al grado del polinomio de mayor grado de los sumandos--}
+    auxSuma :: (Num a) => [a] -> [a] -> [a]
+    auxSuma [] [] = []
+    auxSuma p1 [] = p1
+    auxSuma [] p2 = p2
+    auxSuma (p:ps) (q:qs) = p+q:auxSuma ps qs
+
+-- cero para los polinomios, es igual al cero de los vectores, solamente hará falta indicar la dimensión del EV
+    ceroPol :: (Integral a) => a -> Polinomio a
+    ceroPol n = Polinomio (map (*0) [1..n])
    
