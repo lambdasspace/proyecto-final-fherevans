@@ -46,3 +46,5 @@ sumaFila f1 f2 (Matriz m) = let sum = suma (m !! (f1-1)) (m !! (f2-1))
                                 right = drop f2 m
                                 in Matriz (left ++ [sum] ++ right)
 
+gaussJordan :: (Num a) => (Matriz a) -> (Matriz a)
+gauusJordan (Matriz (m:ms)) = 
