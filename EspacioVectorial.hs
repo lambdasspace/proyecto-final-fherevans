@@ -49,6 +49,10 @@ module EspacioVectorial where
 -- Tipo de dato matríz, puede definir una materíz por fila o una matríz por columna
     data Matriz a = Matriz [Vector a]
 
+-- Instanciamos Functor para matrices
+    instance Functor Matriz where
+        fmap f (Matriz a) = Matriz (map (\x -> fmap f x) a)
+
 --Instanciamos Show
     instance (Show a) => Show (Matriz a) where 
         show (Matriz []) = ""
@@ -59,7 +63,7 @@ module EspacioVectorial where
         suma (Matriz xs) (Matriz ys) = if verificaSum xs ys then let p = zip xs ys 
                                                                  in Matriz (map (\(a,b) -> suma a b) p)
                                        else error "No es posible sumar matrices de distintos EV"
-        multiplica a (Matriz xs) = Matriz (map (\x -> multiplica a x) xs)
+        multiplica a m = fmap (*a) m
 
 -- Función auxiliar con la cuál verificamos si un par de matrices tienen la misma dimensión
     verificaSum :: [Vector a] -> [Vector a] -> Bool 
@@ -82,6 +86,17 @@ module EspacioVectorial where
 -- Por ejemplo el polinomio "3 + 2x^2 + x^3" equivale a: "Polinomio [3,0,2,1]"
     data Polinomio a = Polinomio [a] deriving Show
 
+{--
+    instance (Show a) => Show (Polinomio a) where
+        show p = let i = (getPol p) in showPol (length i) i
+
+    showPol :: (Ord a, Num a, Eq a, Show a) => a -> [a] -> String
+    showPol 1 l = show $ head l
+    showPol n l = if pos > 0 then showPol (n-1) l ++ "+" ++ show pos ++ "x^" ++ show (n-1)
+                  else if pos == 0 then showPol (n-1) l ++ "" 
+                       else showPol (n-1) l ++ "-" ++ show pos ++ "x^" ++ show (n-1)
+                  where pos = (l !! (n-1))
+--}
 -- Instanciamos a nuestro polinomio como miembre de espacio vectorial
     instance EV Polinomio where
         suma ps qs = Polinomio (auxSuma (getPol ps) (getPol qs))
@@ -106,6 +121,7 @@ module EspacioVectorial where
 -- Funciones para convertir polinomios a vectores y visceversa, esto con el fin de poder utilizarlos en matrices
     vecToPol :: Vector a -> Polinomio a
     vecToPol (Vector a) = (Polinomio a)
-    
+
+-- Convierte a un polinomio en un vector 
     polToVec :: Polinomio a -> Vector a
     polToVec (Polinomio a) = (Vector a)
