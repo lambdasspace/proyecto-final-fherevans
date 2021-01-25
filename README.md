@@ -7,7 +7,8 @@
   * el vector cero de cada espacio
   * fmap para para matriz y vector
   * función *show* para matriz y vector
-  * funciones que convierten de polinomios a vectores y de lista de vectores a matrices
+  * funciones que lista de vectores a matrices
+  * Se elminan polinomios, ya representan el mismo caso que el vector
 
 2. Operaciones para matrices
   * función transpuesta
