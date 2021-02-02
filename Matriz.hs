@@ -70,7 +70,7 @@ selectFila n (Matriz a) = getVector $ a !! (n-1)
 -- A partir de aquí trabajamos únicamente con matrices cuadradas y aumentadas
 -- Sirve para dejar únicamente la matriz en forma diagonal con ayuda de las operaciones elementales 
 gaussJordan :: (Eq a, Fractional a) => Matriz a -> Matriz a
-gaussJordan m = escalona ren ren m where ren = fst $ sizeM m
+gaussJordan m = escalona ren ren (diagonalNoNula m) where ren = fst $ sizeM m
 
 -- Escalona una matriz, pone valores nulos en todas las posiciones salvo en la diagonal y vuelve 1 la diagonal
 escalona :: (Eq a, Fractional a) => Int -> Int -> Matriz a -> Matriz a
@@ -80,10 +80,10 @@ escalona ren col mat = if (getValue (ren,col) mat) == 1 then escalona (ren-1) (c
 
 --fase 2 vulve cero las posiciones que no se hayan en la diagonal, diagonaliza la matríz
 -- la lista representa a las filas distintas a la fila c (las que deben ser modificadas) y m a la matriz
-fase2 :: (Fractional a) => [Int] -> Int -> Matriz a -> Matriz a
+fase2 :: (Eq a, Fractional a) => [Int] -> Int -> Matriz a -> Matriz a
 fase2 [] _ m = m
 fase2 (x:xs) c m = let val = getValue (x,c) m
-                       in fase2 xs c $ multSumaFila (- val) c x m
+                       in if val==0 then fase2 xs c m else fase2 xs c $ multSumaFila (- val) c x m
 
 -- fase 1 vuelve 1 la entrada (n,n) y los demás elementos de la fila quedan modificados
 fase1 :: (Fractional a) => (Int,Int) -> Matriz a -> Matriz a
@@ -116,7 +116,8 @@ swapDiagonal ((a,as):xs) m list = if length as /= 0
                                            in swapDiagonal (map (\(a,c) -> (a,delete elem c)) xs) m (y ++ [selectFila elem m] ++ ys)
                                   else error "Sistema sin solución"
 
+
 --}
 --determinante
 m3 :: Matriz Double                    
-m3 = Matriz [Vector [1,0,0], Vector [0,2,0], Vector [0,0,4]]
+m3 = Matriz [Vector [5,1,3,0], Vector [2,0,4,1], Vector [0,2,0,5]]

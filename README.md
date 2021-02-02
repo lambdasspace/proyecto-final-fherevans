@@ -1,6 +1,7 @@
 # Implementado hasta el momento
 
-1. Los espacios vectoriales de **Matrices**, **N-adas** y **Polinomios**
+1. Los espacios vectoriales de **Matrices**, **Vectores**
+Polinomios puede verse como un caso de los vectores
 
   * suma de vectores
   * multiplicación por escalares
@@ -17,3 +18,7 @@
     + intercambio de renglones
     + suma de renglones
     + multiplicación de una fila por un escalar
+    + una función que realiza la multiplicación de un renglón y lo suma a otro
+  * función para diagonalizar
+  * algoritmo de Gauss Jordan que resuleve sistemas de ecuaciones lineales
+  * funciones que brindan información de matrices (tamaño, tomar filas, tomar un valor en cierta coordenada)
