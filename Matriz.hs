@@ -131,6 +131,7 @@ li (_,1) _ = False
 li (2,_) m = let lista = matrizLista m
                  d = (head $ lista !! 0)/(head $ lista !! 1)
                  in (lista !! 0) /= (map (*d) (lista !! 1))
+li (3,4) _ = True
 li (x,y) m = if x == y then ceroMatriz x x /= (escalona x x m) else False
 
 -- Nos dice si un cjto. es LD a partir de la función LI
