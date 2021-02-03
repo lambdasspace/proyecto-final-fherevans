@@ -69,13 +69,14 @@ selectFila n (Matriz a) = getVector $ a !! (n-1)
 
 -- A partir de aquí trabajamos únicamente con matrices cuadradas y aumentadas
 -- Sirve para dejar únicamente la matriz en forma diagonal con ayuda de las operaciones elementales 
-gaussJordan :: (Eq a, Fractional a) => Matriz a -> Matriz a
+gaussJordan :: (Enum a, Eq a, Fractional a) => Matriz a -> Matriz a
 gaussJordan m = escalona ren ren (diagonalNoNula m) where ren = fst $ sizeM m
 
 -- Escalona una matriz, pone valores nulos en todas las posiciones salvo en la diagonal y vuelve 1 la diagonal
-escalona :: (Eq a, Fractional a) => Int -> Int -> Matriz a -> Matriz a
+escalona :: (Enum a, Eq a, Fractional a) => Int -> Int -> Matriz a -> Matriz a
 escalona 0 0 mat = mat
-escalona ren col mat = if (getValue (ren,col) mat) == 1 then escalona (ren-1) (col-1) (fase2 (delete ren [1..t]) col mat) else escalona ren col $ (fase1 (ren,col) mat)
+escalona ren col mat = if checkNulo mat then multiplica 0 mat
+                       else if (getValue (ren,col) mat) == 1 then escalona (ren-1) (col-1) (fase2 (delete ren [1..t]) col mat) else escalona ren col $ (fase1 (ren,col) mat)
                         where t = fst $ sizeM mat
 
 --fase 2 vulve cero las posiciones que no se hayan en la diagonal, diagonaliza la matríz
@@ -86,12 +87,12 @@ fase2 (x:xs) c m = let val = getValue (x,c) m
                        in if val==0 then fase2 xs c m else fase2 xs c $ multSumaFila (- val) c x m
 
 -- fase 1 vuelve 1 la entrada (n,n) y los demás elementos de la fila quedan modificados
-fase1 :: (Fractional a) => (Int,Int) -> Matriz a -> Matriz a
+fase1 :: (Eq a, Fractional a) => (Int,Int) -> Matriz a -> Matriz a
 fase1 (x,y) m = let v = getValue (x,y) m
-                    in multFila x (1/v) m
+                    in if v==0 then multiplica 0 m else multFila x (1/v) m
 
 -- En caso que sea posible acomoda en la diagonal de la matriz valores no nulos
-diagonalNoNula :: (Eq a, Num a) => Matriz a -> Matriz a
+diagonalNoNula :: (Eq a, Fractional a) => Matriz a -> Matriz a
 diagonalNoNula m = let tam = sizeM m
                        ren = fst tam
                        in swapDiagonal (candidates ren ren m []) m (matrizLista m)
@@ -108,16 +109,52 @@ candidates tam ren m x = candidates tam (ren-1) m (x ++ [(ren, [y | y<-[1..tam],
 -- Dada la lista de la función anterior intercabia las filas de la matriz para que en la diagonal obtengamos 
 -- elementos no nulos, en caso que esto no sea posible se lanza un error, utilizamos recursión de cola.
 -- Recibimos la lista de la función anterior, la matríz y la lista de vectores de la matriz
-swapDiagonal :: [(Int,[Int])] -> Matriz a -> [[a]] -> Matriz a
+swapDiagonal :: (Fractional a) => [(Int,[Int])] -> Matriz a -> [[a]] -> Matriz a
 swapDiagonal [] m list = listaMatriz list
 swapDiagonal ((a,as):xs) m list = if length as /= 0 
                                   then let elem = head as
                                            (y,_:ys) = splitAt (a-1) list
                                            in swapDiagonal (map (\(a,c) -> (a,delete elem c)) xs) m (y ++ [selectFila elem m] ++ ys)
-                                  else error "Sistema sin solución"
+                                  else multiplica 0 m
+
+-- Se encarga de verificar si la matriz no tiene filas compuestas de ceros
+checkNulo :: (Eq a, Enum a, Fractional a) => Matriz a -> Bool
+checkNulo m = let t = snd (sizeM m)
+                      in elem (take t [0.0,0.0..]) (matrizLista m)
+
+-- Verifica que un conjunto cualquiera de vectores de a lo más R3 sea li o no lo sea
+-- Puede verificar independencia lineal de vectores de dimensión n siempre y cuando el conjunto se componga de n o de 2 elementos
+-- En la preja (x,y), "x" representa la cantidad de elementos del conjunto y "y" el número de entradas de cada vector
+li :: (Int, Int) -> Matriz Double -> Bool
+li (1,_) _ = True
+li (_,1) _ = False
+li (2,_) m = let lista = matrizLista m
+                 d = (head $ lista !! 0)/(head $ lista !! 1)
+                 in (lista !! 0) /= (map (*d) (lista !! 1))
+li (x,y) m = if x == y then ceroMatriz x x /= (escalona x x m) else False
+
+-- Nos dice si un cjto. es LD a partir de la función LI
+ld :: Matriz Double -> Bool
+ld m = not (li (sizeM m) m)
+
+-- Da la base canónica de un estacio de dimensión n
+baseCanonica :: Int -> Int -> [Vector Double]
+baseCanonica 0 _= []
+baseCanonica n el = let ceros = [0.0,0.0..] 
+                     in baseCanonica (n-1) el ++ [Vector ((take (n-1) ceros)++[1]++(take (el-n) ceros))] 
+
+-- Dado un cpnjunto de vectores, determinará si este conjunto es una base para el ev
+esBase :: Int -> [Vector Double] -> Bool
+esBase n lista = n == (length lista) && li (n,n) (listaMatriz (fmap getVector lista))
 
 
 --}
 --determinante
 m3 :: Matriz Double                    
-m3 = Matriz [Vector [5,1,3,0], Vector [2,0,4,1], Vector [0,2,0,5]]
+m3 = Matriz [Vector [1,1,1], Vector [2,2,2], Vector [0,0,0]]
+
+m4 :: Matriz Double
+m4 = Matriz [Vector [1,0,0,0], Vector [1,1,0,0], Vector [1,1,1,1], Vector [1,2,3,4]]
+
+m5 :: Matriz Double
+m5 = Matriz [Vector [1,7,1], Vector [2,2,2], Vector [1,3,3]]

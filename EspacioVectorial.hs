@@ -68,6 +68,12 @@ instance EV Matriz where
                                     else error "No es posible sumar matrices de distintos EV"
     multiplica a m = fmap (*a) m
 
+instance (Eq a) => Eq (Matriz a) where
+    (Matriz []) == (Matriz []) = True
+    (Matriz []) == (Matriz (_:_)) = False
+    (Matriz (_:_)) == (Matriz []) = False
+    (Matriz (a:as)) == (Matriz (b:bs)) = a == b && (Matriz as) == (Matriz bs)
+
 -- Función auxiliar con la cuál verificamos si un par de matrices tienen la misma dimensión
 verificaSum :: [Vector a] -> [Vector a] -> Bool 
 verificaSum xs ys = if (length xs) == (length ys) then let p = zip xs ys in
