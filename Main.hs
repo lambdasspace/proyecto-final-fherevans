@@ -19,8 +19,8 @@ main = do
 
 -- Función que imprime el menu y recolecta la acción que el usuario desea realizar
 muestraMenu :: IO Char
-muestraMenu = do putStrLn "**BIENVENIDO AL PROGRAMA INTERACTIVO PARA LA BIBLIOTECA DE ÁLGEBRA LINEAL**"
-                 putStrLn "Indica la acción que deseas realizar"
+muestraMenu = do putStrLn "\n**BIENVENIDO AL PROGRAMA INTERACTIVO PARA LA BIBLIOTECA DE ÁLGEBRA LINEAL**"
+                 putStrLn "Indica la acción que deseas realizar\n"
                  putStrLn "[0] Salir del programa"
                  putStrLn "[1] Calcular el producto punto de dos vectores"
                  putStrLn "[2] Obtener la transpuesta de una matriz"
@@ -41,12 +41,12 @@ procesa '1' = prodPunto
 procesa '2' = transpon
 procesa '3' = menuOperaciones
 procesa '4' = sistemaEcuaciones
-{--procesa '5' = esLi
+procesa '5' = esLi
 procesa '6' = esLd
 procesa '7' = canonica
 procesa '8' = bases
+procesa '0' = putStrLn "\nbye"
 procesa _ = putStrLn "\nOpción inválida\n"
---}
 
 -- Nos solicita la información de los vectores a los que les sacaremos el producto punto e imprime el resultado
 prodPunto :: IO ()
@@ -169,8 +169,41 @@ construyeSist e n l = do putStrLn "Introduce los coeficientes que te solicitan a
                          putStrLn $ "Ecuación " ++ show (e-(n-1)) ++ "\n"
                          v <- pideEcuacion (take e ['a','b'..]) []
                          construyeSist e (n-1) (l++[v])
-{--
+
+--Función que pide al usuario un conjunto de vectores y verifica si estos son linealmente
+-- independientes o no
 esLi :: IO ()
-esLi =  do putStrLn "¿De qué dimensión es el E.V al que pertenecen los vectores?"
-           putStrLn "Introduce los vectores "
-           --}
+esLi =  do l1 <- pideMatriz
+           putStrLn $ "El conjunto que introduciste es: \n" ++ (show $ listaMatriz l1)
+           if (li (sizeM (listaMatriz l1)) (listaMatriz l1)) then
+               putStrLn "\nEl conjunto es LI"
+            else
+                putStrLn "\nEl conjunto no es LI"
+
+--Realiza la acción contraria a la función anterior
+esLd :: IO ()
+esLd =  do l1 <- pideMatriz
+           putStrLn $ "El conjunto que introduciste es: \n" ++ (show $ listaMatriz l1)
+           if (ld (listaMatriz l1)) then
+               putStrLn "\nEl conjunto es LD"
+            else
+                putStrLn "\nEl conjunto no es LD"
+
+--Regresa una base canónica de un espacio de dimensión n
+canonica :: IO ()
+canonica = do putStrLn "\n¿De qué dimensión es el subespacio?"
+              t <- getLine
+              putStrLn $ "\nLa base canónica del espacio es:\n" ++ (show $ baseCanonica (read t::Int) (read t::Int))
+
+--Verifica que el conjunto sea base de un EV
+bases :: IO ()
+bases = do l1 <- pideMatriz
+           putStrLn $ "\nEl conjunto que introduciste es: \n" ++ (show $ listaMatriz l1)
+           if (esBase (length $ head l1) l1) then
+               putStrLn "\nEl conjunto es base"
+            else
+                putStrLn "\nEl conjunto no es base"
+
+           
+
+           
