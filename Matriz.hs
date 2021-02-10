@@ -139,16 +139,15 @@ li (x,y) m = if x == y then ceroMatriz x x /= (escalona x x m) else False
 ld :: Matriz Double -> Bool
 ld m = not (li (sizeM m) m)
 
--- Da la base canónica de un estacio de dimensión n
+-- Da la base canónica de un espacio de dimensión n, el segundo parámetro dice cuántos elementos deben tener los vectores
 baseCanonica :: Int -> Int -> [Vector Double]
 baseCanonica 0 _= []
 baseCanonica n el = let ceros = [0.0,0.0..] 
                      in baseCanonica (n-1) el ++ [Vector ((take (n-1) ceros)++[1]++(take (el-n) ceros))] 
 
 -- Dado un cpnjunto de vectores, determinará si este conjunto es una base para el ev
-esBase :: Int -> [Vector Double] -> Bool
-esBase n lista = n == (length lista) && li (n,n) (listaMatriz (fmap getVector lista))
-
+esBase :: Int -> [[Double]] -> Bool
+esBase n lista = n == (length lista) && li (n,n) (listaMatriz lista)
 
 --}
 --determinante
