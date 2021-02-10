@@ -31,3 +31,5 @@ Polinomios puede verse como un caso de los vectores
   * Función que determina si hay un cero vector en el conjunto o matriz
   * Función que nos otorga la base canónica de un espacio de dimensión n
   * Función que nos dice si un conjunto de vectores es base del EV de a lo más dimensión 4
+
+4. Se añade el main, pequeño programa interactivo para probar las principales funcionalidades del sistema

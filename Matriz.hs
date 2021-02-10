@@ -13,7 +13,7 @@ listaMatriz :: [[a]] -> Matriz a
 listaMatriz as = Matriz (map (\x -> (Vector x)) as)
 
 --Función para obtener la transpuesta de una matríz
-transpuesta :: (Fractional a) => Matriz a -> Matriz a
+transpuesta :: Matriz a -> Matriz a
 transpuesta = listaMatriz . auxTrans . matrizLista
 
 auxTrans :: [[a]] -> [[a]]
@@ -32,6 +32,7 @@ multFila :: (Fractional a) => Int -> a -> Matriz a -> Matriz a
 multFila f e (Matriz l) = let v = multiplica e (l !! (f-1)) in Matriz ((take (f-1) l) ++ [v] ++ (drop f l))
 
 -- Intercambia dos filas de la matríz de lugar
+-- Secciones de la matriz se acomodan conforme a las necesidades
 swapFila :: Int -> Int -> Matriz a -> Matriz a
 swapFila f1 f2 (Matriz a) = let v1 = (a !! (f1-1))
                                 v2 = (a !! (f2-1))
